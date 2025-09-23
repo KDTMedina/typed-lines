@@ -372,6 +372,24 @@ def add_comment(blog_id):
     
     return jsonify({'success': False, 'errors': form.errors})
 
+@app.route('/delete_comment/<int:id>', methods=['POST'])
+@login_required
+def delete_comment(id):
+    comment = Comment.query.get_or_404(id)
+    blog_id = comment.blog_id
+    
+    # Check if current user can delete this comment (comment author or blog owner)
+    if current_user.id != comment.user_id and current_user.id != comment.blog.user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    try:
+        db.session.delete(comment)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Comment deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': 'Failed to delete comment'}), 500
+
 @app.route('/dashboard')
 @login_required
 def dashboard():

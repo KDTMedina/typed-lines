@@ -372,7 +372,7 @@
                     <div class="blog-meta-info">
                         <div class="author-info">
                             <img src="{{ url_for('static', filename='uploads/profiles/' + blog.author.profile_picture) }}" 
-                                 alt="{{ blog.author.full_name }}" class="author-avatar"
+                                 alt="{{ blog.author.full_name }}" class="author-avatar rounded-circle"
                                  onerror="this.src='https://thumb.ac-illust.com/51/51e1c1fc6f50743937e62fca9b942694_t.jpeg'">
                             <div>
                                 <h5 class="mb-1">
@@ -387,13 +387,15 @@
                             <!-- Follow Button (only for other users) -->
                             {% if current_user.is_authenticated and current_user.id != blog.user_id %}
                                 <button class="btn btn-outline-light btn-sm follow-btn ms-auto" 
-                                        data-user-id="{{ blog.author.id }}"
-                                        data-following="{{ current_user.is_following(blog.author) }}">
-                                    {% if current_user.is_following(blog.author) %}
-                                        <i class="bi bi-person-check me-1"></i>Following
-                                    {% else %}
-                                        <i class="bi bi-person-plus me-1"></i>Follow
-                                    {% endif %}
+                                        data-username="{{ blog.author.username }}"
+                                        data-following="{{ current_user.is_following(blog.author)|lower }}">
+                                    <span class="follow-text">
+                                        {% if current_user.is_following(blog.author) %}
+                                            <i class="bi bi-person-check me-1"></i>Following
+                                        {% else %}
+                                            <i class="bi bi-person-plus me-1"></i>Follow
+                                        {% endif %}
+                                    </span>
                                 </button>
                             {% endif %}
                         </div>
@@ -409,7 +411,7 @@
                             </div>
                             <div class="stat-item">
                                 <i class="bi bi-chat"></i>
-                                <span>{{ blog.comments_count }}</span> comments
+                                <span id="commentsCount">{{ blog.comments_count }}</span> comments
                             </div>
                             <div class="stat-item">
                                 <i class="bi bi-eye"></i>
@@ -423,10 +425,10 @@
     </div>
 </header>
 
+<!-- Blog Content -->
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- Blog Content -->
             <article class="blog-content">
                 <div class="blog-content">
                     {{ blog.content|safe }}
@@ -442,7 +444,7 @@
                             {% if current_user.is_authenticated %}
                                 <button class="like-btn" id="likeBlogBtn" 
                                         data-blog-id="{{ blog.id }}"
-                                        data-liked="{{ current_user.has_liked_blog(blog) }}">
+                                        data-liked="{{ current_user.has_liked_blog(blog)|lower }}">
                                     <i class="bi bi-heart{{ '-fill' if current_user.has_liked_blog(blog) else '' }}"></i>
                                     <span id="likeText">
                                         {{ 'Unlike' if current_user.has_liked_blog(blog) else 'Like' }}
@@ -466,7 +468,7 @@
                 <div class="comments-section">
                     <h4>
                         <i class="bi bi-chat-dots"></i>
-                        Comments ({{ blog.comments_count }})
+                        Comments (<span id="commentsCount2">{{ blog.comments_count }}</span>)
                     </h4>
                     
                     <!-- Comment Form -->
@@ -476,16 +478,16 @@
                             <div class="row align-items-start">
                                 <div class="col-auto">
                                     <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_picture) }}" 
-                                         alt="{{ current_user.full_name }}" class="comment-avatar"
+                                         alt="{{ current_user.full_name }}" class="comment-avatar rounded-circle"
                                          onerror="this.src='https://thumb.ac-illust.com/51/51e1c1fc6f50743937e62fca9b942694_t.jpeg'">
                                 </div>
                                 <div class="col">
-                                    {{ comment_form.content(class="form-control", placeholder="Write a comment...", rows="3") }}
+                                    {{ comment_form.content(class="form-control", placeholder="Write a comment...", rows="3", id="commentContent") }}
                                     {% for error in comment_form.content.errors %}
                                         <div class="text-danger small mt-1">{{ error }}</div>
                                     {% endfor %}
                                     <div class="text-end mt-2">
-                                        {{ comment_form.submit(class="btn btn-olive") }}
+                                        {{ comment_form.submit(class="btn btn-olive", id="commentSubmit") }}
                                     </div>
                                 </div>
                             </div>
@@ -513,7 +515,7 @@
                                     <div class="comment-header">
                                         <div class="comment-author-info">
                                             <img src="{{ url_for('static', filename='uploads/profiles/' + comment.author.profile_picture) }}" 
-                                                 alt="{{ comment.author.full_name }}" class="comment-avatar"
+                                                 alt="{{ comment.author.full_name }}" class="comment-avatar rounded-circle"
                                                  onerror="this.src='https://thumb.ac-illust.com/51/51e1c1fc6f50743937e62fca9b942694_t.jpeg'">
                                             <div>
                                                 <a href="{{ url_for('profile', username=comment.author.username) }}" 
@@ -531,7 +533,7 @@
                                         {% if current_user.is_authenticated %}
                                             <button class="comment-like-btn" 
                                                     data-comment-id="{{ comment.id }}"
-                                                    data-liked="{{ current_user.has_liked_comment(comment) }}">
+                                                    data-liked="{{ current_user.has_liked_comment(comment)|lower }}">
                                                 <i class="bi bi-heart{{ '-fill' if current_user.has_liked_comment(comment) else '' }}"></i>
                                                 <span class="like-count">{{ comment.likes_count }}</span>
                                             </button>
@@ -553,7 +555,7 @@
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <div class="no-comments">
+                            <div class="no-comments" id="noComments">
                                 <i class="bi bi-chat-dots display-4 mb-3"></i>
                                 <h5>No comments yet</h5>
                                 <p class="mb-0">Be the first to share your thoughts!</p>
@@ -596,4 +598,344 @@
     </div>
 </div>
 {% endif %}
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // CSRF Token for AJAX requests
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                     document.querySelector('input[name="csrf_token"]')?.value;
+
+    // Blog Like Functionality
+    const likeBlogBtn = document.getElementById('likeBlogBtn');
+    if (likeBlogBtn) {
+        likeBlogBtn.addEventListener('click', function() {
+            const blogId = this.dataset.blogId;
+            const isLiked = this.dataset.liked === 'true';
+            
+            // Disable button to prevent multiple clicks
+            this.disabled = true;
+            
+            fetch(`/toggle_like_blog/${blogId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    // Update button state
+                    const heartIcon = this.querySelector('i');
+                    const likeText = this.querySelector('#likeText');
+                    
+                    if (data.status === 'liked') {
+                        heartIcon.className = 'bi bi-heart-fill';
+                        likeText.textContent = 'Unlike';
+                        this.classList.add('liked');
+                        this.dataset.liked = 'true';
+                    } else {
+                        heartIcon.className = 'bi bi-heart';
+                        likeText.textContent = 'Like';
+                        this.classList.remove('liked');
+                        this.dataset.liked = 'false';
+                    }
+                    
+                    // Update like counts
+                    document.getElementById('likesCount').textContent = data.likes_count;
+                    document.getElementById('likesCount2').textContent = data.likes_count;
+                    
+                    // Show success animation
+                    this.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                this.disabled = false;
+            });
+        });
+    }
+
+    // Follow Functionality
+    const followBtn = document.querySelector('.follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            const username = this.dataset.username;
+            const isFollowing = this.dataset.following === 'true';
+            
+            this.disabled = true;
+            
+            fetch(`/toggle_follow/${username}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    const followText = this.querySelector('.follow-text');
+                    
+                    if (data.status === 'followed') {
+                        followText.innerHTML = '<i class="bi bi-person-check me-1"></i>Following';
+                        this.classList.add('following');
+                        this.dataset.following = 'true';
+                    } else {
+                        followText.innerHTML = '<i class="bi bi-person-plus me-1"></i>Follow';
+                        this.classList.remove('following');
+                        this.dataset.following = 'false';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                this.disabled = false;
+            });
+        });
+    }
+
+    // Comment Like Functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.comment-like-btn')) {
+            const btn = e.target.closest('.comment-like-btn');
+            const commentId = btn.dataset.commentId;
+            const isLiked = btn.dataset.liked === 'true';
+            
+            btn.disabled = true;
+            
+            fetch(`/toggle_like_comment/${commentId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    const heartIcon = btn.querySelector('i');
+                    const likeCount = btn.querySelector('.like-count');
+                    
+                    if (data.status === 'liked') {
+                        heartIcon.className = 'bi bi-heart-fill';
+                        btn.classList.add('liked');
+                        btn.dataset.liked = 'true';
+                    } else {
+                        heartIcon.className = 'bi bi-heart';
+                        btn.classList.remove('liked');
+                        btn.dataset.liked = 'false';
+                    }
+                    
+                    likeCount.textContent = data.likes_count;
+                    
+                    // Animation
+                    btn.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        btn.style.transform = 'scale(1)';
+                    }, 200);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+            });
+        }
+    });
+
+    // Comment Form Submission
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('commentSubmit');
+            const contentInput = document.getElementById('commentContent');
+            const loadingSpinner = document.getElementById('commentsLoading');
+            
+            // Validate content
+            if (!contentInput.value.trim()) {
+                showToast('Please write a comment before submitting.', 'warning');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Posting...';
+            loadingSpinner.style.display = 'block';
+            
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear the form
+                    contentInput.value = '';
+                    
+                    // Hide "no comments" message if it exists
+                    const noComments = document.getElementById('noComments');
+                    if (noComments) {
+                        noComments.style.display = 'none';
+                    }
+                    
+                    // Add new comment to the list
+                    const commentsList = document.getElementById('commentsList');
+                    const newComment = createCommentElement(data.comment);
+                    commentsList.insertAdjacentHTML('afterbegin', newComment);
+                    
+                    // Update comment count
+                    const currentCount = parseInt(document.getElementById('commentsCount').textContent);
+                    const newCount = currentCount + 1;
+                    document.getElementById('commentsCount').textContent = newCount;
+                    document.getElementById('commentsCount2').textContent = newCount;
+                    
+                    showToast('Comment posted successfully!', 'success');
+                } else {
+                    showToast('Failed to post comment. Please try again.', 'error');
+                    console.error('Form errors:', data.errors);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Post Comment';
+                loadingSpinner.style.display = 'none';
+            });
+        });
+    }
+
+    // Helper function to create comment HTML
+    function createCommentElement(comment) {
+        return `
+            <div class="comment-item" data-comment-id="${comment.id}">
+                <div class="comment-header">
+                    <div class="comment-author-info">
+                        <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_picture) }}" 
+                             alt="${comment.author}" class="comment-avatar rounded-circle"
+                             onerror="this.src='https://thumb.ac-illust.com/51/51e1c1fc6f50743937e62fca9b942694_t.jpeg'">
+                        <div>
+                            <span class="comment-author">${comment.author}</span>
+                            <div class="comment-date">${comment.date}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comment-content">
+                    ${comment.content}
+                </div>
+                
+                <div class="comment-actions">
+                    <button class="comment-like-btn" 
+                            data-comment-id="${comment.id}"
+                            data-liked="false">
+                        <i class="bi bi-heart"></i>
+                        <span class="like-count">${comment.likes_count}</span>
+                    </button>
+                    
+                    <button class="btn btn-link text-danger p-0" 
+                            onclick="deleteComment('${comment.id}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 5000);
+    }
+});
+
+// Delete comment function (global scope for onclick)
+function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) {
+        return;
+    }
+    
+    const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
+    
+    fetch(`/delete_comment/${commentId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove comment from DOM
+            const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+            if (commentElement) {
+                commentElement.remove();
+            }
+            
+            // Update comment count
+            const currentCount = parseInt(document.getElementById('commentsCount').textContent);
+            const newCount = Math.max(0, currentCount - 1);
+            document.getElementById('commentsCount').textContent = newCount;
+            document.getElementById('commentsCount2').textContent = newCount;
+            
+            // Show "no comments" message if no comments left
+            if (newCount === 0) {
+                const commentsList = document.getElementById('commentsList');
+                commentsList.innerHTML = `
+                    <div class="no-comments" id="noComments">
+                        <i class="bi bi-chat-dots display-4 mb-3"></i>
+                        <h5>No comments yet</h5>
+                        <p class="mb-0">Be the first to share your thoughts!</p>
+                    </div>
+                `;
+            }
+        } else {
+            showToast('Failed to delete comment. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('An error occurred. Please try again.', 'error');
+    });
+}
+</script>
+
 {% endblock %}
