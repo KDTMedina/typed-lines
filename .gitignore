@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+venv/
+.env
+.vscode/
+.idea/
+*.sqlite3
+*.db
+.pytest_cache/
+config.py
+test_connection.py

@@ -1,0 +1,599 @@
+{% extends "base.html" %}
+
+{% block title %}{{ blog.title }} - TypedLines{% endblock %}
+
+{% block extra_head %}
+<style>
+    .blog-header {
+        position: relative;
+        background: linear-gradient(135deg, var(--olive-primary) 0%, var(--olive-secondary) 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .blog-cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.3;
+    }
+    
+    .blog-header-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .blog-meta-info {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px solid white;
+        object-fit: cover;
+    }
+    
+    .blog-stats {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .owner-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 3;
+    }
+    
+    .action-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+    
+    .action-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .blog-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 2rem;
+    }
+    
+    .blog-content h1, .blog-content h2, .blog-content h3 {
+        color: var(--olive-primary);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .blog-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.375rem;
+        margin: 1rem 0;
+    }
+    
+    .blog-content p {
+        margin-bottom: 1.2rem;
+        line-height: 1.8;
+    }
+    
+    .blog-interactions {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 2rem;
+    }
+    
+    .like-section {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .like-btn {
+        background: none;
+        border: none;
+        color: var(--medium-gray);
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .like-btn:hover {
+        color: #dc3545;
+        transform: scale(1.05);
+    }
+    
+    .like-btn.liked {
+        color: #dc3545;
+    }
+    
+    .like-btn.liked i {
+        animation: heartBeat 0.6s ease;
+    }
+    
+    @keyframes heartBeat {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+    }
+    
+    .comments-section h4 {
+        color: var(--olive-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .comment-item {
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--olive-light);
+        transition: all 0.3s ease;
+    }
+    
+    .comment-item:hover {
+        background: #f0f4f0;
+        border-left-color: var(--olive-primary);
+    }
+    
+    .comment-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    
+    .comment-author-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .comment-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .comment-author {
+        font-weight: 600;
+        color: var(--olive-primary);
+        text-decoration: none;
+    }
+    
+    .comment-author:hover {
+        color: var(--olive-dark);
+    }
+    
+    .comment-date {
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+    }
+    
+    .comment-content {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .comment-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .comment-like-btn {
+        background: none;
+        border: none;
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        transition: color 0.3s ease;
+    }
+    
+    .comment-like-btn:hover {
+        color: var(--olive-primary);
+    }
+    
+    .comment-like-btn.liked {
+        color: #dc3545;
+    }
+    
+    .comment-form {
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .no-comments {
+        text-align: center;
+        color: var(--medium-gray);
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        margin: 1rem 0;
+    }
+    
+    .privacy-badge {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .featured-badge {
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        color: #333;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        margin: 1rem 0;
+    }
+    
+    @media (max-width: 768px) {
+        .blog-header {
+            padding: 2rem 0;
+        }
+        
+        .blog-meta-info {
+            padding: 1rem;
+        }
+        
+        .blog-stats {
+            gap: 1rem;
+        }
+        
+        .owner-actions {
+            position: static;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .blog-content, .blog-interactions {
+            padding: 1.5rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+        
+        .author-info {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Blog Header -->
+<header class="blog-header">
+    {% if blog.cover_image %}
+        <img src="{{ url_for('static', filename='uploads/covers/' + blog.cover_image) }}" 
+             alt="{{ blog.title }}" class="blog-cover">
+    {% endif %}
+    
+    <!-- Owner Actions (only visible to blog owner) -->
+    {% if current_user.is_authenticated and current_user.id == blog.user_id %}
+        <div class="owner-actions">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('edit_blog', id=blog.id) }}" class="btn action-btn">
+                    <i class="bi bi-pencil-square me-1"></i>Edit
+                </a>
+                <button type="button" class="btn action-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </button>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="container">
+        <div class="blog-header-content">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="text-center">
+                        <!-- Title -->
+                        <h1 class="display-4 fw-bold mb-3">{{ blog.title }}</h1>
+                        
+                        <!-- Subtitle -->
+                        {% if blog.subtitle %}
+                            <p class="lead mb-4">{{ blog.subtitle }}</p>
+                        {% endif %}
+                        
+                        <!-- Badges -->
+                        <div class="mb-4">
+                            {% if not blog.is_public %}
+                                <span class="privacy-badge me-2">
+                                    <i class="bi bi-lock me-1"></i>Followers Only
+                                </span>
+                            {% endif %}
+                            {% if blog.is_featured %}
+                                <span class="featured-badge">
+                                    <i class="bi bi-star-fill me-1"></i>Featured
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Blog Meta Information -->
+                    <div class="blog-meta-info">
+                        <div class="author-info">
+                            <img src="{{ url_for('static', filename='uploads/profiles/' + blog.author.profile_picture) }}" 
+                                 alt="{{ blog.author.full_name }}" class="author-avatar"
+                                 onerror="this.src='https://thumb.ac-illust.com/51/51e1c1fc6f50743937e62fca9b942694_t.jpeg'">
+                            <div>
+                                <h5 class="mb-1">
+                                    <a href="{{ url_for('profile', username=blog.author.username) }}" 
+                                       class="text-white text-decoration-none">
+                                        {{ blog.author.full_name }}
+                                    </a>
+                                </h5>
+                                <p class="mb-0 text-light">@{{ blog.author.username }}</p>
+                            </div>
+                            
+                            <!-- Follow Button (only for other users) -->
+                            {% if current_user.is_authenticated and current_user.id != blog.user_id %}
+                                <button class="btn btn-outline-light btn-sm follow-btn ms-auto" 
+                                        data-user-id="{{ blog.author.id }}"
+                                        data-following="{{ current_user.is_following(blog.author) }}">
+                                    {% if current_user.is_following(blog.author) %}
+                                        <i class="bi bi-person-check me-1"></i>Following
+                                    {% else %}
+                                        <i class="bi bi-person-plus me-1"></i>Follow
+                                    {% endif %}
+                                </button>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="blog-stats">
+                            <div class="stat-item">
+                                <i class="bi bi-calendar3"></i>
+                                <span>{{ blog.date_created.strftime('%B %d, %Y') }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="bi bi-heart"></i>
+                                <span id="likesCount">{{ blog.likes_count }}</span> likes
+                            </div>
+                            <div class="stat-item">
+                                <i class="bi bi-chat"></i>
+                                <span>{{ blog.comments_count }}</span> comments
+                            </div>
+                            <div class="stat-item">
+                                <i class="bi bi-eye"></i>
+                                <span>{{ blog.views|default(0) }}</span> views
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Blog Content -->
+            <article class="blog-content">
+                <div class="blog-content">
+                    {{ blog.content|safe }}
+                </div>
+            </article>
+            
+            <!-- Blog Interactions -->
+            <div class="blog-interactions">
+                <!-- Like Section -->
+                <div class="like-section">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            {% if current_user.is_authenticated %}
+                                <button class="like-btn" id="likeBlogBtn" 
+                                        data-blog-id="{{ blog.id }}"
+                                        data-liked="{{ current_user.has_liked_blog(blog) }}">
+                                    <i class="bi bi-heart{{ '-fill' if current_user.has_liked_blog(blog) else '' }}"></i>
+                                    <span id="likeText">
+                                        {{ 'Unlike' if current_user.has_liked_blog(blog) else 'Like' }}
+                                    </span>
+                                </button>
+                            {% else %}
+                                <a href="{{ url_for('login') }}" class="like-btn">
+                                    <i class="bi bi-heart"></i>
+                                    <span>Like</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-muted">
+                            <small id="likesCount2">{{ blog.likes_count }}</small> people liked this post
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Comments Section -->
+                <div class="comments-section">
+                    <h4>
+                        <i class="bi bi-chat-dots"></i>
+                        Comments ({{ blog.comments_count }})
+                    </h4>
+                    
+                    <!-- Comment Form -->
+                    {% if current_user.is_authenticated %}
+                        <form method="POST" action="{{ url_for('add_comment', blog_id=blog.id) }}" class="comment-form" id="commentForm">
+                            {{ comment_form.hidden_tag() }}
+                            <div class="row align-items-start">
+                                <div class="col-auto">
+                                    <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_picture) }}" 
+                                         alt="{{ current_user.full_name }}" class="comment-avatar"
+                                         onerror="this.src='https://thumb.ac-illust.com/51/51e1c1fc6f50743937e62fca9b942694_t.jpeg'">
+                                </div>
+                                <div class="col">
+                                    {{ comment_form.content(class="form-control", placeholder="Write a comment...", rows="3") }}
+                                    {% for error in comment_form.content.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                    <div class="text-end mt-2">
+                                        {{ comment_form.submit(class="btn btn-olive") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="comment-form text-center">
+                            <p class="mb-3">Join the conversation!</p>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-olive me-2">Login</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-olive">Sign Up</a>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Loading Spinner -->
+                    <div class="loading-spinner" id="commentsLoading">
+                        <div class="spinner-border spinner-olive" role="status">
+                            <span class="visually-hidden">Loading comments...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Comments List -->
+                    <div id="commentsList">
+                        {% if blog.comments %}
+                            {% for comment in comments %}
+                                <div class="comment-item" data-comment-id="{{ comment.id }}">
+                                    <div class="comment-header">
+                                        <div class="comment-author-info">
+                                            <img src="{{ url_for('static', filename='uploads/profiles/' + comment.author.profile_picture) }}" 
+                                                 alt="{{ comment.author.full_name }}" class="comment-avatar"
+                                                 onerror="this.src='https://thumb.ac-illust.com/51/51e1c1fc6f50743937e62fca9b942694_t.jpeg'">
+                                            <div>
+                                                <a href="{{ url_for('profile', username=comment.author.username) }}" 
+                                                   class="comment-author">{{ comment.author.full_name }}</a>
+                                                <div class="comment-date">{{ comment.date_created.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="comment-content">
+                                        {{ comment.content }}
+                                    </div>
+                                    
+                                    <div class="comment-actions">
+                                        {% if current_user.is_authenticated %}
+                                            <button class="comment-like-btn" 
+                                                    data-comment-id="{{ comment.id }}"
+                                                    data-liked="{{ current_user.has_liked_comment(comment) }}">
+                                                <i class="bi bi-heart{{ '-fill' if current_user.has_liked_comment(comment) else '' }}"></i>
+                                                <span class="like-count">{{ comment.likes_count }}</span>
+                                            </button>
+                                        {% else %}
+                                            <span class="text-muted">
+                                                <i class="bi bi-heart"></i>
+                                                {{ comment.likes_count }}
+                                            </span>
+                                        {% endif %}
+                                        
+                                        <!-- Delete comment button (only for comment author) -->
+                                        {% if current_user.is_authenticated and current_user.id == comment.user_id %}
+                                            <button class="btn btn-link text-danger p-0" 
+                                                    onclick="deleteComment('{{ comment.id }}')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-comments">
+                                <i class="bi bi-chat-dots display-4 mb-3"></i>
+                                <h5>No comments yet</h5>
+                                <p class="mb-0">Be the first to share your thoughts!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Blog Modal -->
+{% if current_user.is_authenticated and current_user.id == blog.user_id %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Delete Blog
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>"{{ blog.title }}"</strong>?</p>
+                <div class="alert alert-danger">
+                    <i class="bi bi-warning me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone. All comments and likes will also be permanently deleted.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('delete_blog', id=blog.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Delete Forever
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

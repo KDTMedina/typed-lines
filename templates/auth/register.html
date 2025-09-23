@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Register | TypedLines{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 fade-in">
+            <h2 class="mb-4 text-center text-olive"><i class="bi bi-person-plus me-2"></i>Create Your Account</h2>
+            <form method="POST" action="{{ url_for('register') }}">
+                {{ form.hidden_tag() }}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            {{ form.first_name(class="form-control", placeholder="First Name") }}
+                            {{ form.first_name.label }}
+                            {% if form.first_name.errors %}
+                            <div class="text-danger small">{{ form.first_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            {{ form.last_name(class="form-control", placeholder="Last Name") }}
+                            {{ form.last_name.label }}
+                            {% if form.last_name.errors %}
+                            <div class="text-danger small">{{ form.last_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-floating mb-3">
+                    {{ form.username(class="form-control", placeholder="Username") }}
+                    {{ form.username.label }}
+                    {% if form.username.errors %}
+                    <div class="text-danger small">{{ form.username.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-floating mb-3">
+                    {{ form.email(class="form-control", placeholder="Email") }}
+                    {{ form.email.label }}
+                    {% if form.email.errors %}
+                    <div class="text-danger small">{{ form.email.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-floating mb-3">
+                    {{ form.password(class="form-control", placeholder="Password") }}
+                    {{ form.password.label }}
+                    {% if form.password.errors %}
+                    <div class="text-danger small">{{ form.password.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-floating mb-3">
+                    {{ form.password2(class="form-control", placeholder="Confirm Password") }}
+                    {{ form.password2.label }}
+                    {% if form.password2.errors %}
+                    <div class="text-danger small">{{ form.password2.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid mb-4">
+                    <button type="submit" class="btn btn-olive btn-lg">Sign Up</button>
+                </div>
+
+                <div class="text-center">
+                    <p class="mb-0">Already have an account?</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-olive mt-2">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

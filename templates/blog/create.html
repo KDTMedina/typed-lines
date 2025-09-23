@@ -1,0 +1,537 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Blog - TypedLines{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Fix for profile image fallback */
+    .navbar .dropdown-toggle img {
+        background-color: var(--olive-primary);
+    }
+    
+    .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        border-radius: 0.375rem;
+        margin-top: 1rem;
+    }
+    
+    .form-section {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .section-title {
+        color: var(--olive-primary);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--olive-light);
+    }
+    
+    .image-upload-area {
+        border: 2px dashed var(--olive-light);
+        border-radius: 0.5rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background-color: #fafafa;
+    }
+    
+    .image-upload-area:hover {
+        border-color: var(--olive-primary);
+        background-color: #f0f4f0;
+    }
+    
+    .image-upload-area.dragover {
+        border-color: var(--olive-primary);
+        background-color: rgba(108, 123, 94, 0.1);
+        transform: scale(1.02);
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: var(--olive-light);
+        margin-bottom: 1rem;
+    }
+    
+    .privacy-section {
+        background-color: #f8f9fa;
+        border-left: 4px solid var(--olive-primary);
+        padding: 1.5rem;
+        border-radius: 0.375rem;
+    }
+    
+    .char-counter {
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+        text-align: right;
+        margin-top: 0.25rem;
+    }
+    
+    .char-counter.warning {
+        color: #ffc107;
+    }
+    
+    .char-counter.danger {
+        color: #dc3545;
+    }
+    
+    .toolbar-tip {
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Quill editor custom styling */
+    .ql-container {
+        min-height: 400px;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    .ql-toolbar {
+        border-top-left-radius: 0.375rem;
+        border-top-right-radius: 0.375rem;
+    }
+    
+    .ql-container {
+        border-bottom-left-radius: 0.375rem;
+        border-bottom-right-radius: 0.375rem;
+    }
+    
+    .preview-mode {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1.5rem;
+        min-height: 400px;
+        background-color: white;
+    }
+    
+    .action-buttons {
+        position: sticky;
+        bottom: 2rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border: 1px solid #dee2e6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="text-olive mb-3">
+                    <i class="bi bi-pencil-square me-2"></i>Create New Blog
+                </h1>
+                <p class="text-muted">Share your thoughts and stories with the world</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" id="blogForm">
+                {{ form.hidden_tag() }}
+                
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="bi bi-info-circle me-2"></i>Basic Information
+                    </h3>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Title -->
+                            <div class="mb-4">
+                                {{ form.title.label(class="form-label fw-semibold") }}
+                                {{ form.title(class="form-control form-control-lg", placeholder="Enter an engaging title for your blog", maxlength="200", id="titleInput") }}
+                                {% for error in form.title.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                                <div class="char-counter" id="titleCounter">0/200 characters</div>
+                            </div>
+                            
+                            <!-- Subtitle -->
+                            <div class="mb-4">
+                                {{ form.subtitle.label(class="form-label fw-semibold") }}
+                                {{ form.subtitle(class="form-control", placeholder="Add a subtitle to give readers more context (optional)", maxlength="300", id="subtitleInput") }}
+                                {% for error in form.subtitle.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                                <div class="char-counter" id="subtitleCounter">0/300 characters</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <!-- Privacy Settings -->
+                            <div class="privacy-section">
+                                <h5 class="mb-3">
+                                    <i class="bi bi-shield-check me-2"></i>Privacy Settings
+                                </h5>
+                                <div class="form-check form-switch">
+                                    {{ form.is_public(class="form-check-input", id="privacySwitch") }}
+                                    <label class="form-check-label" for="privacySwitch">
+                                        <span id="privacyLabel">Public Blog</span>
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <span id="privacyDescription">Everyone can read this blog</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cover Image Section -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="bi bi-image me-2"></i>Cover Image
+                    </h3>
+                    
+                    <div class="image-upload-area" id="imageUploadArea">
+                        <div class="upload-content" id="uploadContent">
+                            <i class="bi bi-cloud-upload upload-icon"></i>
+                            <h5 class="mb-2">Drop your cover image here</h5>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            {{ form.cover_image(class="d-none", id="coverImageInput", accept="image/*") }}
+                            <button type="button" class="btn btn-outline-olive" onclick="document.getElementById('coverImageInput').click()">
+                                <i class="bi bi-folder-open me-2"></i>Browse Files
+                            </button>
+                            <div class="mt-2">
+                                <small class="text-muted">Supports: JPG, PNG, GIF, WebP (Max: 10MB)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="image-preview d-none" id="imagePreview">
+                            <img src="" alt="Cover preview" class="preview-image" id="previewImg">
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="document.getElementById('coverImageInput').click()">
+                                    <i class="bi bi-pencil me-1"></i>Change Image
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeImage()">
+                                    <i class="bi bi-trash me-1"></i>Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% for error in form.cover_image.errors %}
+                        <div class="text-danger small mt-2">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Content Section -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="bi bi-text-paragraph me-2"></i>Content
+                    </h3>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            {{ form.content.label(class="form-label fw-semibold") }}
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input type="radio" class="btn-check" name="editorMode" id="writeMode" checked>
+                                <label class="btn btn-outline-olive" for="writeMode">
+                                    <i class="bi bi-pencil me-1"></i>Write
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="editorMode" id="previewMode">
+                                <label class="btn btn-outline-olive" for="previewMode">
+                                    <i class="bi bi-eye me-1"></i>Preview
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="toolbar-tip">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Use the toolbar above to format your text with headings, bold, italic, links, and more.
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden textarea for form submission -->
+                    {{ form.content(class="d-none", id="contentInput", required=false) }}
+                    
+                    <!-- Write Mode -->
+                    <div id="writeEditor">
+                        <div id="quillEditor" style="height: 400px;"></div>
+                    </div>
+                    
+                    <!-- Preview Mode -->
+                    <div id="previewEditor" class="preview-mode d-none">
+                        <div id="contentPreview">Start writing to see your preview...</div>
+                    </div>
+                    
+                    {% for error in form.content.errors %}
+                        <div class="text-danger small mt-2">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                                <i class="bi bi-bookmark me-2"></i>Save as Draft
+                            </button>
+                            <small class="text-muted ms-2">Auto-save: <span id="saveStatus">Ready</span></small>
+                        </div>
+                        
+                        <div>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary me-2">
+                                <i class="bi bi-arrow-left me-2"></i>Cancel
+                            </a>
+                            {{ form.submit(class="btn btn-olive btn-lg px-4") }}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Discard Changes?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>You have unsaved changes. Are you sure you want to leave without publishing your blog?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Editing</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-danger">Discard Changes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Quill editor
+    const quill = new Quill('#quillEditor', {
+        theme: 'snow',
+        placeholder: 'Start writing your blog content here...',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'align': [] }],
+                ['blockquote', 'code-block'],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Character counters
+    function updateCharCounter(input, counter, max) {
+        const current = input.value.length;
+        const counterEl = document.getElementById(counter);
+        counterEl.textContent = `${current}/${max} characters`;
+        
+        counterEl.classList.remove('warning', 'danger');
+        if (current > max * 0.9) {
+            counterEl.classList.add('warning');
+        }
+        if (current > max) {
+            counterEl.classList.add('danger');
+        }
+    }
+
+    // Title counter
+    const titleInput = document.getElementById('titleInput');
+    titleInput.addEventListener('input', function() {
+        updateCharCounter(this, 'titleCounter', 200);
+    });
+
+    // Subtitle counter
+    const subtitleInput = document.getElementById('subtitleInput');
+    subtitleInput.addEventListener('input', function() {
+        updateCharCounter(this, 'subtitleCounter', 300);
+    });
+
+    // Privacy switch
+    const privacySwitch = document.getElementById('privacySwitch');
+    const privacyLabel = document.getElementById('privacyLabel');
+    const privacyDescription = document.getElementById('privacyDescription');
+
+    privacySwitch.addEventListener('change', function() {
+        if (this.checked) {
+            privacyLabel.textContent = 'Public Blog';
+            privacyDescription.textContent = 'Everyone can read this blog';
+        } else {
+            privacyLabel.textContent = 'Private Blog';
+            privacyDescription.textContent = 'Only your followers can read this blog';
+        }
+    });
+
+    // Image upload handling
+    const imageUploadArea = document.getElementById('imageUploadArea');
+    const coverImageInput = document.getElementById('coverImageInput');
+    const uploadContent = document.getElementById('uploadContent');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+
+    // Drag and drop functionality
+    imageUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+
+    imageUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+
+    imageUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleImageSelect(files[0]);
+        }
+    });
+
+    coverImageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            handleImageSelect(this.files[0]);
+        }
+    });
+
+    function handleImageSelect(file) {
+        // Validate file type
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPG, PNG, GIF, WebP)');
+            return;
+        }
+
+        // Validate file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            uploadContent.classList.add('d-none');
+            imagePreview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    window.removeImage = function() {
+        coverImageInput.value = '';
+        uploadContent.classList.remove('d-none');
+        imagePreview.classList.add('d-none');
+        previewImg.src = '';
+    };
+
+    // Editor mode switching
+    const writeModeBtn = document.getElementById('writeMode');
+    const previewModeBtn = document.getElementById('previewMode');
+    const writeEditor = document.getElementById('writeEditor');
+    const previewEditor = document.getElementById('previewEditor');
+    const contentPreview = document.getElementById('contentPreview');
+
+    writeModeBtn.addEventListener('change', function() {
+        if (this.checked) {
+            writeEditor.classList.remove('d-none');
+            previewEditor.classList.add('d-none');
+        }
+    });
+
+    previewModeBtn.addEventListener('change', function() {
+        if (this.checked) {
+            writeEditor.classList.add('d-none');
+            previewEditor.classList.remove('d-none');
+            
+            // Update preview content
+            const content = quill.root.innerHTML;
+            contentPreview.innerHTML = content || 'Start writing to see your preview...';
+        }
+    });
+
+    // Form submission
+    const blogForm = document.getElementById('blogForm');
+    blogForm.addEventListener('submit', function(e) {
+        // Update hidden textarea with Quill content
+        const content = quill.root.innerHTML.trim();
+        const contentInput = document.getElementById('contentInput');
+        
+        // Check if content is empty (only contains empty tags)
+        const textContent = quill.getText().trim();
+        if (textContent.length === 0) {
+            e.preventDefault();
+            alert('Please add some content to your blog post.');
+            document.getElementById('writeMode').checked = true;
+            writeEditor.classList.remove('d-none');
+            previewEditor.classList.add('d-none');
+            quill.focus();
+            return false;
+        }
+        
+        contentInput.value = content;
+    });
+
+    // Auto-save functionality
+    let saveTimeout;
+    let hasChanges = false;
+
+    function markChanged() {
+        hasChanges = true;
+        document.getElementById('saveStatus').textContent = 'Unsaved changes';
+        
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(function() {
+            // Auto-save logic would go here
+            document.getElementById('saveStatus').textContent = 'Auto-saved';
+        }, 3000);
+    }
+
+    // Listen for changes
+    quill.on('text-change', markChanged);
+    titleInput.addEventListener('input', markChanged);
+    subtitleInput.addEventListener('input', markChanged);
+    privacySwitch.addEventListener('change', markChanged);
+
+    // Save draft function
+    window.saveDraft = function() {
+        document.getElementById('saveStatus').textContent = 'Saving draft...';
+        
+        // Here you would typically send an AJAX request to save the draft
+        setTimeout(function() {
+            document.getElementById('saveStatus').textContent = 'Draft saved';
+            hasChanges = false;
+        }, 1000);
+    };
+
+    // Warn before leaving if there are unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (hasChanges) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Initialize character counters
+    updateCharCounter(titleInput, 'titleCounter', 200);
+    updateCharCounter(subtitleInput, 'subtitleCounter', 300);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,321 @@
+/* Custom CSS for TypedLines */
+
+:root {
+    --olive-primary: #6c7b5e;
+    --olive-secondary: #8a9779;
+    --olive-light: #a8b395;
+    --olive-dark: #5a6950;
+    --ash-black: #2c2c2c;
+    --light-gray: #f8f9fa;
+    --medium-gray: #6c757d;
+}
+
+/* Typography */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--ash-black);
+}
+
+.text-olive {
+    color: var(--olive-primary) !important;
+}
+
+/* Navigation */
+.bg-olive {
+    background-color: var(--olive-primary) !important;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    color: white !important;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: white !important;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Buttons */
+.btn-olive {
+    background-color: var(--olive-primary);
+    border-color: var(--olive-primary);
+    color: white;
+}
+
+.btn-olive:hover {
+    background-color: var(--olive-dark);
+    border-color: var(--olive-dark);
+    color: white;
+}
+
+.btn-outline-olive {
+    color: var(--olive-primary);
+    border-color: var(--olive-primary);
+}
+
+.btn-outline-olive:hover {
+    background-color: var(--olive-primary);
+    border-color: var(--olive-primary);
+    color: white;
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.blog-card {
+    height: 100%;
+    overflow: hidden;
+}
+
+.blog-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.blog-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.featured-blog {
+    position: relative;
+    height: 500px;
+    overflow: hidden;
+    border-radius: 0.375rem;
+}
+
+.featured-blog img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.featured-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 2rem;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: var(--olive-primary);
+    box-shadow: 0 0 0 0.2rem rgba(108, 123, 94, 0.25);
+}
+
+.form-floating > label {
+    color: var(--medium-gray);
+}
+
+/* Rich Text Editor */
+.ql-toolbar {
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+.ql-container {
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    min-height: 300px;
+}
+
+.ql-editor {
+    min-height: 300px;
+}
+
+/* Blog Content */
+.blog-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.blog-content h1, .blog-content h2, .blog-content h3 {
+    color: var(--olive-primary);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.blog-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.375rem;
+    margin: 1rem 0;
+}
+
+.blog-meta {
+    color: var(--medium-gray);
+    font-size: 0.9rem;
+}
+
+/* Profile */
+.profile-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 4px solid var(--olive-primary);
+}
+
+.profile-stats {
+    background-color: var(--light-gray);
+    border-radius: 0.375rem;
+    padding: 1rem;
+}
+
+/* Comments */
+.comment-item {
+    border-left: 3px solid var(--olive-light);
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: var(--olive-primary);
+}
+
+.comment-date {
+    font-size: 0.8rem;
+    color: var(--medium-gray);
+}
+
+/* Likes and interactions */
+.like-btn, .follow-btn {
+    border: none;
+    background: none;
+    color: var(--medium-gray);
+    transition: color 0.3s ease;
+}
+
+.like-btn:hover, .follow-btn:hover {
+    color: var(--olive-primary);
+}
+
+.like-btn.liked {
+    color: #dc3545;
+}
+
+.follow-btn.following {
+    color: var(--olive-primary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Loading spinner */
+.spinner-olive {
+    color: var(--olive-primary);
+}
+
+/* Toast notifications */
+.toast {
+    border-left: 4px solid var(--olive-primary);
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: var(--olive-primary);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--olive-primary);
+    border-color: var(--olive-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .featured-blog {
+        height: 300px;
+    }
+    
+    .featured-overlay {
+        padding: 1rem;
+    }
+    
+    .profile-img {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .blog-content {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .featured-blog {
+        height: 250px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        font-size: 0.9rem;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--olive-light);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--olive-primary);
+}
+
+/* Dark mode support for forms */
+@media (prefers-color-scheme: dark) {
+    .form-control {
+        background-color: #2c2c2c;
+        border-color: #495057;
+        color: white;
+    }
+    
+    .form-control:focus {
+        background-color: #2c2c2c;
+        border-color: var(--olive-primary);
+        color: white;
+    }
+}
