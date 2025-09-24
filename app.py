@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 import os
 import uuid
+from pytz import timezone
 from datetime import datetime
 from config import Config
 from models import db, User, Blog, Comment
@@ -296,7 +297,6 @@ def delete_blog(id):
     flash('Blog deleted successfully.', 'success')
     return redirect(url_for('profile', username=current_user.username))
 
-# AJAX routes for likes and follows
 @app.route('/toggle_follow/<username>', methods=['POST'])
 @login_required
 def toggle_follow(username):
@@ -359,13 +359,17 @@ def add_comment(blog_id):
         db.session.add(comment)
         db.session.commit()
         
+        utc_time = comment.date_created
+        manila_tz = timezone('Asia/Manila')
+        manila_time = utc_time.replace(tzinfo=timezone('UTC')).astimezone(manila_tz)
+
         return jsonify({
             'success': True,
             'comment': {
                 'id': comment.id,
                 'content': comment.content,
                 'author': comment.author.full_name,
-                'date': comment.date_created.strftime('%B %d, %Y at %I:%M %p'),
+                'date': manila_time.strftime('%B %d, %Y at %I:%M %p'),
                 'likes_count': 0
             }
         })
