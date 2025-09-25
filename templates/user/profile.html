@@ -98,8 +98,8 @@
                         {% for blog in blogs %}
                         <div class="col-md-6 col-lg-4 mb-4">
                             <div class="card h-100 blog-card">
-                                {% if blog.image %}
-                                <img src="{{ url_for('static', filename='images/blogs/' + blog.image) }}"
+                                {% if blog.cover_image %}
+                                <img src="{{ url_for('static', filename='uploads/covers/' ~ blog.cover_image) }}"
                                     class="card-img-top" alt="{{ blog.title }}"
                                     style="height: 200px; object-fit: cover;">
                                 {% endif %}
@@ -110,7 +110,7 @@
                                         </a>
                                     </h5>
                                     <p class="card-text flex-grow-1">
-                                        {{ blog.content[:150] }}{% if blog.content|length > 150 %}...{% endif %}
+                                        {{ blog.subtitle }}
                                     </p>
                                     <div class="mt-auto">
                                         <small class="text-muted">
