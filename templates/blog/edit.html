@@ -477,12 +477,12 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Warn before leaving if there are unsaved changes
-    window.addEventListener('beforeunload', function(e) {
-        if (hasChanges) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
+    // window.addEventListener('beforeunload', function(e) {
+    //    if (hasChanges) {
+    //        e.preventDefault();
+    //        e.returnValue = '';
+    //    }
+    // });
 
     // Initialize character counters
     updateCharCounter(titleInput, 'titleCounter', 200);

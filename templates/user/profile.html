@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.full_name }} - Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Profile Header -->
+        <div class="col-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center mb-3 mb-md-0">
+                            <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_picture if user.profile_picture else 'default.jpg')) }}"
+                                alt="{{ user.full_name }}" class="rounded-circle img-fluid profile-image"
+                                style="width: 150px; height: 150px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h2 class="mb-1">{{ user.full_name }}</h2>
+                                    <p class="text-muted mb-2">@{{ user.username }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Joined {{ user.date_joined.strftime('%B %Y') }}
+                                    </small>
+                                </div>
+                                <div class="profile-actions">
+                                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                                    <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Edit Profile
+                                    </a>
+                                    {% elif current_user.is_authenticated %}
+                                    {% if current_user.is_following(user) %}
+                                    <form method="POST" action="{{ url_for('unfollow', username=user.username) }}"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="fas fa-user-minus"></i> Unfollow
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('follow', username=user.username) }}"
+                                        class="d-inline">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-user-plus"></i> Follow
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if user.bio %}
+                            <div class="mb-3">
+                                <p class="mb-0">{{ user.bio }}</p>
+                            </div>
+                            {% endif %}
+
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <strong class="d-block">{{ user.blogs.count() }}</strong>
+                                    <small class="text-muted">Posts</small>
+                                </div>
+                                <div class="col-4">
+                                    <strong class="d-block">{{ user.followers.count() }}</strong>
+                                    <small class="text-muted">Followers</small>
+                                </div>
+                                <div class="col-4">
+                                    <strong class="d-block">{{ user.followed.count() }}</strong>
+                                    <small class="text-muted">Following</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Posts Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-blog"></i>
+                        {% if current_user.is_authenticated and current_user.id == user.id %}
+                        My Posts
+                        {% else %}
+                        Posts by {{ user.first_name }}
+                        {% endif %}
+                        <span class="badge badge-secondary ms-2">{{ blogs|length }}</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if blogs %}
+                    <div class="row">
+                        {% for blog in blogs %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 blog-card">
+                                {% if blog.image %}
+                                <img src="{{ url_for('static', filename='images/blogs/' + blog.image) }}"
+                                    class="card-img-top" alt="{{ blog.title }}"
+                                    style="height: 200px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">
+                                        <a href="{{ url_for('view_blog', id=blog.id) }}" class="text-decoration-none">
+                                            {{ blog.title }}
+                                        </a>
+                                    </h5>
+                                    <p class="card-text flex-grow-1">
+                                        {{ blog.content[:150] }}{% if blog.content|length > 150 %}...{% endif %}
+                                    </p>
+                                    <div class="mt-auto">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar"></i>
+                                            {{ blog.date_created.strftime('%B %d, %Y') }}
+                                        </small>
+                                        <div class="mt-2">
+                                            <span class="badge badge-light me-2">
+                                                <i class="fas fa-heart"></i> {{ blog.liked_by.count() }}
+                                            </span>
+                                            <span class="badge badge-light me-2">
+                                                <i class="fas fa-comments"></i> {{ blog.comments.count() }}
+                                            </span>
+                                            {% if not blog.is_public %}
+                                            <span class="badge badge-warning">
+                                                <i class="fas fa-lock"></i> Private
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination would go here if implemented -->
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-blog fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No posts yet</h5>
+                        {% if current_user.is_authenticated and current_user.id == user.id %}
+                        <p class="text-muted mb-3">Start sharing your thoughts with the world!</p>
+                        <a href="{{ url_for('create_blog') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Your First Post
+                        </a>
+                        {% else %}
+                        <p class="text-muted">{{ user.first_name }} hasn't shared any posts yet.</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-image {
+        border: 4px solid #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .blog-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .blog-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge {
+        font-size: 0.8rem;
+    }
+
+    .profile-actions {
+        min-width: 120px;
+    }
+
+    @media (max-width: 768px) {
+        .profile-actions {
+            text-align: center;
+            width: 100%;
+            margin-top: 1rem;
+        }
+    }
+</style>
+{% endblock %}
