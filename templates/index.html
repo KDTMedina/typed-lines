@@ -2,76 +2,188 @@
 {% block title %}Home - TypedLines{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<!-- <div class="container-fluid px-4 py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 200px;">
+    <div class="container">
+        <h1 class="display-4 fw-bold text-white mb-2 animate-fade-in">Welcome to TypedLines</h1>
+        <p class="lead text-white opacity-90">Discover stories that inspire, inform, and ignite imagination</p>
+    </div>
+</div> -->
 
+<div class="container mt-n5 mb-5">
     <!-- Featured Blog Carousel -->
     {% if featured_blogs %}
-    <div id="featuredCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
-        <div class="carousel-inner rounded shadow-sm">
-            {% for blog in featured_blogs %}
-            <div class="carousel-item {% if loop.first %}active{% endif %}">
-                <a href="{{ url_for('view_blog', id=blog.id) }}" class="position-relative d-block">
-                    <img src="{{ url_for('static', filename='uploads/covers/' ~ blog.cover_image) }}"
-                        class="d-block w-100 img-fluid" alt="Featured Cover"
-                        style="max-height: 400px; object-fit: cover;">
+    <div class="position-relative mb-5">
+        <div id="featuredCarousel" class="carousel slide rounded-4 overflow-hidden shadow-lg" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for blog in featured_blogs %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <a href="{{ url_for('view_blog', id=blog.id) }}" class="position-relative d-block featured-link">
+                        <div class="ratio ratio-21x9" style="max-height: 500px;">
+                            <img src="{{ url_for('static', filename='uploads/covers/' ~ blog.cover_image) }}"
+                                class="w-100 h-100" alt="Featured Cover"
+                                style="object-fit: cover; filter: brightness(0.85);">
+                        </div>
 
-                    <!-- Overlay with gradient -->
-                    <div class="carousel-caption d-none d-md-block p-4 rounded" style="background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.8) 100%);
-                            bottom: 0; left: 0; right: 0; position: absolute; text-align: left;">
-                        <h3 class="text-white fw-bold">{{ blog.title }}</h3>
-                        <p class="text-light fs-5">{{ blog.subtitle }}</p>
-                        <small class="text-light fst-italic">Published on {{ blog.date_created|datetime }}</small>
-                    </div>
-                </a>
+                        <!-- Modern glassmorphism overlay -->
+                        <div class="position-absolute bottom-0 start-0 end-0 p-4 p-md-5" 
+                             style="background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);">
+                            <div class="mb-3">
+                                <span class="badge rounded-pill px-3 py-2" 
+                                      style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);">
+                                    Featured
+                                </span>
+                            </div>
+                            <h2 class="text-white fw-bold mb-3 display-5">{{ blog.title }}</h2>
+                            <p class="text-white fs-5 mb-3 opacity-90">{{ blog.subtitle }}</p>
+                            <div class="d-flex align-items-center gap-3">
+                                <small class="text-white opacity-75">
+                                    <i class="bi bi-calendar3 m-1"></i> {{ blog.date_created|datetime }}
+                                </small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
 
-        <!-- Carousel controls -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
+            <!-- Modern carousel controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev" 
+                    style="width: 60px;">
+                <div class="">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                </div>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next"
+                    style="width: 60px;">
+                <div class="">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                </div>
+                <span class="visually-hidden">Next</span>
+            </button>
 
-        <!-- Optional indicators -->
-        <div class="carousel-indicators mt-3">
-            {% for blog in featured_blogs %}
-            <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="{{ loop.index0 }}"
-                class="{% if loop.first %}active{% endif %}" aria-current="{{ 'true' if loop.first else 'false' }}"
-                aria-label="Slide {{ loop.index }}"></button>
-            {% endfor %}
+            <!-- Stylish indicators -->
+            <div class="carousel-indicators mb-4">
+                {% for blog in featured_blogs %}
+                <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="{{ loop.index0 }}"
+                    class="{% if loop.first %}active{% endif %} rounded-pill" 
+                    style="width: 12px; height: 12px; border: 2px solid white;"
+                    aria-label="Slide {{ loop.index }}"></button>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
 
-
-    <!-- Recent Blogs -->
-    <div class="row">
-        {% for blog in recent_blogs %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm border-0">
-                {% if blog.cover_image %}
-                <img src="{{ url_for('static', filename='uploads/covers/' ~ blog.cover_image) }}" class="card-img-top"
-                    alt="Cover Image" style="height: 180px; object-fit: cover;">
-                {% endif %}
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-olive">{{ blog.title }}</h5>
-                    <p class="card-subtitle text-muted mb-2">{{ blog.subtitle[:100] ~ ('...' if blog.subtitle|length >
-                        100 else '') }}</p>
-                    <small class="text-muted">Published on {{ blog.date_created|datetime }}</small>
-                    <a href="{{ url_for('view_blog', id=blog.id) }}" class="btn btn-outline-olive mt-auto">Read More</a>
-                </div>
-            </div>
+    <!-- Section Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #2d3748;">Latest Stories</h2>
+            <p class="text-muted mb-0">Fresh perspectives from our community</p>
         </div>
-        {% else %}
-        <p class="text-center">No blogs available yet. Be the first to <a href="{{ url_for('create_blog') }}">write
-                one</a>!</p>
-        {% endfor %}
     </div>
 
+    <!-- Recent Blogs Grid -->
+    <div class="row g-4">
+        {% for blog in recent_blogs %}
+        <div class="col-md-6 col-lg-4">
+            <article class="card h-100 border-0 shadow-sm blog-card" 
+                     style="transition: all 0.3s ease; border-radius: 16px; overflow: hidden;">
+                <a href="{{ url_for('view_blog', id=blog.id) }}" class="text-decoration-none">
+                    {% if blog.cover_image %}
+                    <div class="position-relative overflow-hidden" style="height: 220px;">
+                        <img src="{{ url_for('static', filename='uploads/covers/' ~ blog.cover_image) }}" 
+                             class="w-100 h-100 blog-img" 
+                             alt="Cover Image" 
+                             style="object-fit: cover; transition: transform 0.4s ease;">
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge rounded-pill px-3 py-2" 
+                                  style="background: rgba(255,255,255,0.95); color: #667eea; font-weight: 600;">
+                                New
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-2" style="color: #2d3748; font-size: 1.25rem;">
+                            {{ blog.title }}
+                        </h5>
+                        <p class="card-text text-muted mb-3" style="font-size: 0.95rem; line-height: 1.6;">
+                            {{ blog.subtitle[:100] ~ ('...' if blog.subtitle|length > 100 else '') }}
+                        </p>
+                        <div class="d-flex align-items-center justify-content-between mt-auto pt-3 border-top">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3 me-1"></i> {{ blog.date_created|datetime }}
+                            </small>
+                            <span class="text-primary fw-semibold" style="font-size: 0.9rem;">
+                                Read more →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </article>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-pencil-square" style="font-size: 4rem; color: #cbd5e0;"></i>
+                </div>
+                <h3 class="fw-bold mb-2" style="color: #2d3748;">No stories yet</h3>
+                <p class="text-muted mb-4">Be the first to share your thoughts with the world</p>
+                <a href="{{ url_for('create_blog') }}" 
+                   class="btn btn-lg px-5 py-3 rounded-pill fw-semibold" 
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    Write Your Story
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .blog-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+    }
+
+    .blog-card:hover .blog-img {
+        transform: scale(1.08);
+    }
+
+    .featured-link {
+        transition: all 0.3s ease;
+    }
+
+    .featured-link:hover img {
+        filter: brightness(1) !important;
+    }
+
+    .backdrop-blur {
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .carousel-control-prev:hover .backdrop-blur,
+    .carousel-control-next:hover .backdrop-blur {
+        background-color: rgba(255,255,255,0.4) !important;
+    }
+
+    .card-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
 {% endblock %}

@@ -3,45 +3,48 @@
 {% block title %}{{ user.full_name }} - Profile{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <div class="row">
         <!-- Profile Header -->
         <div class="col-12">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
+            <div class="profile-header-card mb-4">
+                <div class="profile-backdrop"></div>
+                <div class="card-body position-relative">
                     <div class="row align-items-center">
                         <div class="col-md-3 text-center mb-3 mb-md-0">
-                            <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_picture if user.profile_picture else 'default.jpg')) }}"
-                                alt="{{ user.full_name }}" class="rounded-circle img-fluid profile-image"
-                                style="width: 150px; height: 150px; object-fit: cover;">
+                            <div class="profile-image-wrapper">
+                                <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_picture if user.profile_picture else 'default.jpg')) }}"
+                                    alt="{{ user.full_name }}" class="profile-image">
+                                <div class="profile-ring"></div>
+                            </div>
                         </div>
                         <div class="col-md-9">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h2 class="mb-1">{{ user.full_name }}</h2>
-                                    <p class="text-muted mb-2">@{{ user.username }}</p>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar-alt"></i>
+                            <div class="d-flex justify-content-between align-items-start flex-wrap mb-3">
+                                <div class="profile-info">
+                                    <h2 class="profile-name mb-1">{{ user.full_name }}</h2>
+                                    <p class="profile-username mb-2">@{{ user.username }}</p>
+                                    <small class="profile-joined">
+                                        <i class="bi bi-calendar3"></i>
                                         Joined {{ user.date_joined.strftime('%B %Y') }}
                                     </small>
                                 </div>
                                 <div class="profile-actions">
                                     {% if current_user.is_authenticated and current_user.id == user.id %}
-                                    <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary">
+                                    <a href="{{ url_for('edit_profile') }}" class="btn-olive">
                                         <i class="fas fa-edit"></i> Edit Profile
                                     </a>
                                     {% elif current_user.is_authenticated %}
                                     {% if current_user.is_following(user) %}
                                     <form method="POST" action="{{ url_for('unfollow', username=user.username) }}"
                                         class="d-inline">
-                                        <button type="submit" class="btn btn-outline-danger">
+                                        <button type="submit" class="btn-unfollow">
                                             <i class="fas fa-user-minus"></i> Unfollow
                                         </button>
                                     </form>
                                     {% else %}
                                     <form method="POST" action="{{ url_for('follow', username=user.username) }}"
                                         class="d-inline">
-                                        <button type="submit" class="btn btn-primary">
+                                        <button type="submit" class="btn-follow">
                                             <i class="fas fa-user-plus"></i> Follow
                                         </button>
                                     </form>
@@ -51,23 +54,25 @@
                             </div>
 
                             {% if user.bio %}
-                            <div class="mb-3">
+                            <div class="profile-bio mb-3">
                                 <p class="mb-0">{{ user.bio }}</p>
                             </div>
                             {% endif %}
 
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <strong class="d-block">{{ user.blogs.count() }}</strong>
-                                    <small class="text-muted">Posts</small>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <strong class="stat-value">{{ user.blogs.count() }}</strong>
+                                    <small class="stat-label">Posts</small>
                                 </div>
-                                <div class="col-4">
-                                    <strong class="d-block">{{ user.followers.count() }}</strong>
-                                    <small class="text-muted">Followers</small>
+                                <div class="stat-divider"></div>
+                                <div class="stat-item">
+                                    <strong class="stat-value">{{ user.followers.count() }}</strong>
+                                    <small class="stat-label">Followers</small>
                                 </div>
-                                <div class="col-4">
-                                    <strong class="d-block">{{ user.followed.count() }}</strong>
-                                    <small class="text-muted">Following</small>
+                                <div class="stat-divider"></div>
+                                <div class="stat-item">
+                                    <strong class="stat-value">{{ user.followed.count() }}</strong>
+                                    <small class="stat-label">Following</small>
                                 </div>
                             </div>
                         </div>
@@ -80,52 +85,59 @@
     <!-- Blog Posts Section -->
     <div class="row">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h4 class="mb-0">
+            <div class="posts-section">
+                <div class="section-header">
+                    <h4 class="section-title">
                         <i class="fas fa-blog"></i>
                         {% if current_user.is_authenticated and current_user.id == user.id %}
                         My Posts
                         {% else %}
                         Posts by {{ user.first_name }}
                         {% endif %}
-                        <span class="badge badge-secondary ms-2">{{ blogs|length }}</span>
+                        <span class="post-count">{{ blogs|length }}</span>
                     </h4>
                 </div>
-                <div class="card-body">
+                <div class="posts-container">
                     {% if blogs %}
-                    <div class="row">
+                    <div class="row g-4">
                         {% for blog in blogs %}
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100 blog-card">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="modern-blog-card">
                                 {% if blog.cover_image %}
-                                <img src="{{ url_for('static', filename='uploads/covers/' ~ blog.cover_image) }}"
-                                    class="card-img-top" alt="{{ blog.title }}"
-                                    style="height: 200px; object-fit: cover;">
+                                <div class="blog-image-wrapper">
+                                    <img src="{{ url_for('static', filename='uploads/covers/' ~ blog.cover_image) }}"
+                                        class="blog-image" alt="{{ blog.title }}">
+                                    <div class="blog-overlay"></div>
+                                </div>
+                                {% else %}
+                                <div class="blog-image-wrapper blog-image-placeholder">
+                                    <i class="fas fa-file-alt"></i>
+                                    <div class="blog-overlay"></div>
+                                </div>
                                 {% endif %}
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">
-                                        <a href="{{ url_for('view_blog', id=blog.id) }}" class="text-decoration-none">
+                                <div class="blog-content">
+                                    <h5 class="blog-title">
+                                        <a href="{{ url_for('view_blog', id=blog.id) }}">
                                             {{ blog.title }}
                                         </a>
                                     </h5>
-                                    <p class="card-text flex-grow-1">
+                                    <p class="blog-subtitle">
                                         {{ blog.subtitle }}
                                     </p>
-                                    <div class="mt-auto">
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar"></i>
-                                            {{ blog.date_created.strftime('%B %d, %Y') }}
+                                    <div class="blog-meta">
+                                        <small class="blog-date">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            {{ blog.date_created.strftime('%b %d, %Y') }}
                                         </small>
-                                        <div class="mt-2">
-                                            <span class="badge badge-light me-2">
+                                        <div class="blog-stats">
+                                            <span class="stat-badge">
                                                 <i class="fas fa-heart"></i> {{ blog.liked_by.count() }}
                                             </span>
-                                            <span class="badge badge-light me-2">
+                                            <span class="stat-badge">
                                                 <i class="fas fa-comments"></i> {{ blog.comments.count() }}
                                             </span>
                                             {% if not blog.is_public %}
-                                            <span class="badge badge-warning">
+                                            <span class="stat-badge private-badge">
                                                 <i class="fas fa-lock"></i> Private
                                             </span>
                                             {% endif %}
@@ -136,20 +148,19 @@
                         </div>
                         {% endfor %}
                     </div>
-
-                    <!-- Pagination would go here if implemented -->
-
                     {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-blog fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">No posts yet</h5>
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-blog"></i>
+                        </div>
+                        <h5 class="empty-title">No posts yet</h5>
                         {% if current_user.is_authenticated and current_user.id == user.id %}
-                        <p class="text-muted mb-3">Start sharing your thoughts with the world!</p>
-                        <a href="{{ url_for('create_blog') }}" class="btn btn-primary">
+                        <p class="empty-text">Start sharing your thoughts with the world!</p>
+                        <a href="{{ url_for('create_blog') }}" class="btn-olive">
                             <i class="fas fa-plus"></i> Create Your First Post
                         </a>
                         {% else %}
-                        <p class="text-muted">{{ user.first_name }} hasn't shared any posts yet.</p>
+                        <p class="empty-text">{{ user.first_name }} hasn't shared any posts yet.</p>
                         {% endif %}
                     </div>
                     {% endif %}
@@ -160,34 +171,516 @@
 </div>
 
 <style>
+    /* Profile Header Card */
+    .profile-header-card {
+        position: relative;
+        background: #ffffff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(108, 123, 94, 0.08);
+        border: 1px solid rgba(108, 123, 94, 0.1);
+    }
+
+    .profile-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 140px;
+        background: linear-gradient(135deg, var(--olive-primary) 0%, var(--olive-secondary) 100%);
+        opacity: 0.15;
+    }
+
+    .profile-header-card .card-body {
+        padding: 2rem;
+        padding-top: 1rem;
+    }
+
+    /* Profile Image */
+    .profile-image-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-top: 2rem;
+    }
+
     .profile-image {
-        border: 4px solid #fff;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid #ffffff;
+        box-shadow: 0 8px 24px rgba(44, 44, 44, 0.15);
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
     }
 
-    .blog-card {
-        transition: transform 0.2s, box-shadow 0.2s;
+    .profile-image-wrapper:hover .profile-image {
+        transform: scale(1.05);
     }
 
-    .blog-card:hover {
+    .profile-ring {
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        right: -8px;
+        bottom: -8px;
+        border-radius: 50%;
+        border: 2px solid var(--olive-primary);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1;
+    }
+
+    .profile-image-wrapper:hover .profile-ring {
+        opacity: 0.6;
+    }
+
+    /* Profile Info */
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--ash-black);
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.5px;
+    }
+
+    .profile-username {
+        font-size: 1.1rem;
+        color: var(--olive-primary);
+        font-weight: 500;
+    }
+
+    .profile-joined {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
+        background: var(--light-gray);
+        border-radius: 20px;
+    }
+
+    .profile-joined i {
+        color: var(--olive-primary);
+    }
+
+    /* Profile Bio */
+    .profile-bio {
+        padding: 1rem 1.5rem;
+        background: rgba(108, 123, 94, 0.05);
+        border-left: 3px solid var(--olive-primary);
+        border-radius: 8px;
+        color: var(--ash-black);
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    /* Profile Stats */
+    .profile-stats {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(108, 123, 94, 0.05) 0%, rgba(138, 151, 121, 0.05) 100%);
+        border-radius: 16px;
+        margin-top: 1rem;
+    }
+
+    .stat-item {
+        flex: 1;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .stat-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .badge {
+    .stat-value {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--olive-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .stat-divider {
+        width: 1px;
+        height: 40px;
+        background: linear-gradient(to bottom, transparent, var(--olive-light), transparent);
+    }
+
+    /* Buttons */
+    .btn-olive, .btn-follow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--olive-primary) 0%, var(--olive-secondary) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(108, 123, 94, 0.2);
+        text-decoration: none;
+    }
+
+    .btn-olive:hover, .btn-follow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 123, 94, 0.3);
+        color: white;
+    }
+
+    .btn-unfollow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: var(--olive-dark);
+        border: 2px solid var(--olive-light);
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-unfollow:hover {
+        background: rgba(108, 123, 94, 0.05);
+        border-color: var(--olive-primary);
+        transform: translateY(-2px);
+    }
+
+    /* Posts Section */
+    .posts-section {
+        background: #ffffff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(108, 123, 94, 0.08);
+        border: 1px solid rgba(108, 123, 94, 0.1);
+    }
+
+    .section-header {
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(108, 123, 94, 0.05) 0%, rgba(138, 151, 121, 0.05) 100%);
+        border-bottom: 1px solid rgba(108, 123, 94, 0.1);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--ash-black);
+    }
+
+    .section-title i {
+        color: var(--olive-primary);
+    }
+
+    .post-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 0.75rem;
+        background: var(--olive-primary);
+        color: white;
+        border-radius: 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .posts-container {
+        padding: 2rem;
+    }
+
+    /* Modern Blog Card */
+    .modern-blog-card {
+        height: 100%;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(108, 123, 94, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modern-blog-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(108, 123, 94, 0.15);
+        border-color: var(--olive-light);
+    }
+
+    .blog-image-wrapper {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--olive-light) 0%, var(--olive-secondary) 100%);
+    }
+
+    .blog-image-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .blog-image-placeholder i {
+        font-size: 3rem;
+        color: white;
+        opacity: 0.5;
+        z-index: 1;
+        position: relative;
+    }
+
+    .blog-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .modern-blog-card:hover .blog-image {
+        transform: scale(1.1);
+    }
+
+    .blog-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent 0%, rgba(44, 44, 44, 0.3) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modern-blog-card:hover .blog-overlay {
+        opacity: 1;
+    }
+
+    .blog-content {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .blog-title {
+        margin-bottom: 0.75rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    .blog-title a {
+        color: var(--ash-black);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .blog-title a:hover {
+        color: var(--olive-primary);
+    }
+
+    .blog-subtitle {
+        color: var(--medium-gray);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .blog-meta {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(108, 123, 94, 0.1);
+    }
+
+    .blog-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--medium-gray);
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .blog-date i {
+        color: var(--olive-primary);
+    }
+
+    .blog-stats {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.75rem;
+        background: rgba(108, 123, 94, 0.08);
+        color: var(--olive-dark);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .stat-badge:hover {
+        background: rgba(108, 123, 94, 0.15);
+    }
+
+    .stat-badge i {
+        color: var(--olive-primary);
         font-size: 0.8rem;
     }
 
-    .profile-actions {
-        min-width: 120px;
+    .private-badge {
+        background: rgba(255, 193, 7, 0.15);
+        color: #a67c00;
     }
 
+    .private-badge i {
+        color: #a67c00;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(108, 123, 94, 0.1) 0%, rgba(138, 151, 121, 0.1) 100%);
+        border-radius: 50%;
+    }
+
+    .empty-icon i {
+        font-size: 3rem;
+        color: var(--olive-primary);
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--ash-black);
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-text {
+        color: var(--medium-gray);
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
+        .profile-header-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+        }
+
         .profile-actions {
-            text-align: center;
             width: 100%;
             margin-top: 1rem;
         }
+
+        .profile-actions .btn-olive,
+        .profile-actions .btn-follow,
+        .profile-actions .btn-unfollow {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .profile-stats {
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+        }
+
+        .posts-container {
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+        }
     }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modern-blog-card {
+        animation: fadeInUp 0.5s ease backwards;
+    }
+
+    .modern-blog-card:nth-child(1) { animation-delay: 0.1s; }
+    .modern-blog-card:nth-child(2) { animation-delay: 0.2s; }
+    .modern-blog-card:nth-child(3) { animation-delay: 0.3s; }
+    .modern-blog-card:nth-child(4) { animation-delay: 0.1s; }
+    .modern-blog-card:nth-child(5) { animation-delay: 0.2s; }
+    .modern-blog-card:nth-child(6) { animation-delay: 0.3s; }
 </style>
 {% endblock %}
